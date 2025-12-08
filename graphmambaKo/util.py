@@ -7,6 +7,7 @@ import torch
 from scipy.sparse import linalg
 import csv
 import sys
+from scipy.stats import pearsonr
 
 class DataLoader(object):
     def __init__(self, xs, ys, batch_size, pad_with_last_sample=True):
@@ -177,9 +178,45 @@ def masked_mape(preds, labels, null_val=np.nan):
 
 
 def metric(pred, real):
-    mae = masked_mae(pred, real, 0.0).item()
-    mape = masked_mape(pred, real, 0.0).item()
-    rmse = masked_rmse(pred, real, 0.0).item()
-    return mae, mape, rmse
+    if isinstance(pred, torch.Tensor):
+        pred = pred.detach().cpu().numpy()
+    if isinstance(real, torch.Tensor):
+        real = real.detach().cpu().numpy()
+        
+    # mae = masked_mae(pred, real, 0.0).item()
+    # mape = masked_mape(pred, real, 0.0).item()
+    # rmse = masked_rmse(pred, real, 0.0).item()
+    mae = np.mean(np.abs(pred - real))
+    mape = np.mean(np.abs((pred - real) / real)) * 100
+    rmse = np.mean((pred - real) ** 2) ** 0.5
+    spatial_corrs = []
+    if pred.ndim == 3:
+        n_samples, n_timesteps, n_nodes = pred.shape
+        # return n_samples, n_timesteps, n_nodes
+    elif pred.ndim == 2:
+        n_samples, n_nodes = pred.shape
+        n_timesteps = 1
+    # n_samples, n_timesteps, n_nodes = pred.shape
+
+    for i in range(n_samples):
+        for t in range(n_timesteps):
+            
+            if pred.ndim == 3:
+                pred_spatial = pred[i, t, :]  # 
+                real_spatial = real[i, t, :]  # 
+            elif pred.ndim == 2:
+                pred_spatial = pred[i, :]  #
+                real_spatial = real[i, :]  #
+
+            # 
+            mask = ~(np.isnan(pred_spatial) | np.isnan(real_spatial))
+            if np.sum(mask) > 1:  #
+                corr, _ = pearsonr(pred_spatial[mask], real_spatial[mask])
+                if not np.isnan(corr):
+                    spatial_corrs.append(corr)
+
+    spatial_corr = np.mean(spatial_corrs) if spatial_corrs else 0
+
+    return mae, mape, rmse, r2, spatial_corr
 
 

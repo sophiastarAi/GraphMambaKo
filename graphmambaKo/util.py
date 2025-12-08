@@ -217,6 +217,6 @@ def metric(pred, real):
 
     spatial_corr = np.mean(spatial_corrs) if spatial_corrs else 0
 
-    return mae, mape, rmse, r2, spatial_corr
+    return mae, mape, rmse, spatial_corr
 
 

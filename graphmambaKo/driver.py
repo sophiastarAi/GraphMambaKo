@@ -30,7 +30,7 @@ parser.add_argument('--folder', type=str, default='test', help='specify director
 parser.add_argument('--lamb', type=float, default='1', help='balance between reconstruction and prediction loss')
 parser.add_argument('--nu', type=float, default='1e-1', help='tune backward loss')
 parser.add_argument('--eta', type=float, default='1e-1', help='tune consistent loss')
-parser.add_argument('--steps', type=int, default='1', help='steps for learning forward dynamics')
+parser.add_argument('--steps', type=int, default='24', help='steps for learning forward dynamics')
 parser.add_argument('--steps_back', type=int, default='24', help='steps for learning backwards dynamics')
 parser.add_argument('--bottleneck', type=int, default='32', help='size of lower embedding')
 parser.add_argument('--lr_update', type=int, nargs='+', default=[100,200, 300,400],
@@ -138,6 +138,7 @@ print("Training finished")
 amae = []
 amape = []
 armse = []
+sp_corr = []
 for i in range(args.pred_steps):
     pred = scaler.inverse_transform(yhat[:, i, :])  #64,`1,121
     real = testy[:, i, :]
@@ -149,6 +150,8 @@ for i in range(args.pred_steps):
     amae.append(metrics[0])
     amape.append(metrics[1])
     armse.append(metrics[2])
+    sp_corr.append(metrics[3])
+  
+log = 'On average over horizons, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}, Test R²: {:.4f}, Test sp_corr: {:.4f}, Test crps: {:.4f}'
+print(log.format(np.mean(amae), np.mean(amape), np.mean(armse), np.mean(ar2), np.mean(sp_corr), np.mean(crps)))
 
-log = 'On average over horizons, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}'
-print(log.format(np.mean(amae), np.mean(amape), np.mean(armse)))

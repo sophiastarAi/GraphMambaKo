@@ -152,6 +152,6 @@ for i in range(args.pred_steps):
     armse.append(metrics[2])
     sp_corr.append(metrics[3])
   
-log = 'On average over horizons, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f}, Test R²: {:.4f}, Test sp_corr: {:.4f}, Test crps: {:.4f}'
-print(log.format(np.mean(amae), np.mean(amape), np.mean(armse), np.mean(ar2), np.mean(sp_corr), np.mean(crps)))
+log = 'On average over horizons, Test MAE: {:.4f}, Test MAPE: {:.4f}, Test RMSE: {:.4f},  Test sp_corr: {:.4f}'
+print(log.format(np.mean(amae), np.mean(amape), np.mean(armse),  np.mean(sp_corr)))
 

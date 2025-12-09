@@ -126,7 +126,7 @@ for batch_idx, (x, y) in enumerate(dataloader['test_loader'].get_iterator()):
 
         out, out_back = model(testx,edge_index,edge_attr, mode='forward')
 
-    outputs.append(out[0])
+    outputs.append(out)
 
 yhat = torch.cat(outputs, dim=0)
 yhat = yhat[:testy.size(0), ...]

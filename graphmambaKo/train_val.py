@@ -32,7 +32,7 @@ def train_batch(dataloader, model, scaler, optimizer, device, criterion, steps, 
         trainy = torch.Tensor(y).to(device)
 
         out, out_back = model(trainx,edge_index,edge_attr, mode='forward')
-        out = scaler.inverse_transform(out[0])
+        out = scaler.inverse_transform(out)
 
 
         metrics = util.metric(out, trainy)
@@ -95,7 +95,7 @@ def val_batch(dataloader, model, scaler, device, criterion, steps, adj, edge_ind
         valy = torch.Tensor(y).to(device)
 
         out, out_back = model(valx,edge_index,edge_attr, mode='forward')
-        out = scaler.inverse_transform(out[0])
+        out = scaler.inverse_transform(out)
 
         metrics = util.metric(out, valy)
         loss_fwd = metrics[2]
@@ -116,8 +116,8 @@ def test_batch(dataloader, model, device, criterion, steps, adj, edge_index,edge
         model.eval()
 
         out, out_back = model(testx,edge_index,edge_attr, mode='forward')
-        loss_fwd = nn.MSELoss().to(device)(out[0], testy)
-        val_loss[0] += nn.MSELoss().to(device)(out[0], testy).item()
+        loss_fwd = nn.MSELoss().to(device)(out, testy)
+        val_loss[0] += nn.MSELoss().to(device)(out, testy).item()
         total_loss+=loss_fwd.item()
     val_loss /= batch_idx + 1
     total_loss /= batch_idx + 1
@@ -158,6 +158,6 @@ def train(model, modelpath, dataloader, logger, scaler, lr,gamma, weight_decay,
             print(f"average train loss: {train_loss}")
             print(f"average val loss: {val_loss}")
             # print(f"rmse on val: {rmse}")
-            if hasattr(model.dynamics, 'dynamics'):
-                w, _ = np.linalg.eig(model.dynamics.dynamics.weight.data.cpu().numpy())
+            # if hasattr(model.dynamics, 'dynamics'):
+            #     w, _ = np.linalg.eig(model.dynamics.dynamics.weight.data.cpu().numpy())
     return model
